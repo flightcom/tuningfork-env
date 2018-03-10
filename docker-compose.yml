@@ -1,0 +1,56 @@
+version: '3.1'
+
+services:
+
+    nginx:
+        build:
+            context: ./nginx
+            args:
+                - SERVER_NAME=${SERVER_NAME_CORE}
+        ports:
+            - "${HOST_SERVER_PORT_CORE}:80"
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
+            - ../tuningfork-api/:/var/www/${SERVER_NAME_CORE}:cached
+        links:
+            - php
+            - mariadb
+
+
+    php:
+        env_file:
+            - .env
+        build:
+            context: ./php
+            args:
+                - SERVER_NAME=${SERVER_NAME_CORE}
+        links:
+            - mariadb
+        volumes:
+            - ../tuningfork-api/:/var/www/${SERVER_NAME_CORE}:cached
+
+
+    mariadb:
+        env_file:
+            - .env
+        build:
+            context: ./mariadb
+            args:
+                - MYSQL_DATABASE=${DB_DATABASE}
+                - MYSQL_USER=${DB_USERNAME}
+                - MYSQL_PASSWORD=${DB_PASSWORD}
+                - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+        expose:
+            - "${DB_PORT}"
+        ports:
+            - "${HOST_DB_PORT}:${DB_PORT}"
+        volumes:
+            - ./data/mysql:/var/lib/mysql
+
+
+    composer:
+        image: composer:1.1
+        command: install
+        volumes:
+            - ../tuningfork-api/:/app
+        tty: true
