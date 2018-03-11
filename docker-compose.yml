@@ -49,7 +49,7 @@ services:
 
 
     composer:
-        image: composer:1.1
+        image: composer:1.5
         command: install
         volumes:
             - ../tuningfork-api/:/app
