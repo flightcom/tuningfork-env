@@ -49,8 +49,7 @@ services:
 
 
     composer:
-        image: composer:1.5
+        image: composer:1.6
         command: install
         volumes:
             - ../tuningfork-api/:/app
-        tty: true
